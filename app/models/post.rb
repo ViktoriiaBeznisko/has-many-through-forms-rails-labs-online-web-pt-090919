@@ -4,14 +4,15 @@ class Post < ActiveRecord::Base
   has_many :comments
   has_many :users, through: :comments
   
-  accepts_nested_attributes_for :categories, :reject_if => proc { |attrs| attrs[:name].blank? }
+  accepts_nested_attributes_for :categories
 
-
-  def categories_attributes=(attributes)
-    attributes.values.each do |attribute|
-      if attribute[:name].present?
-        category = Category.find_or_create_by(attribute)
-        self.categories << category
+  def categories_attributes=(categories_attributes)
+    categories_attributes.values.each do |category_attributes|
+      if category_attributes[:name].present?
+        category = Category.find_or_create_by(category_attributes)
+        if !self.categories.include?(category)
+          self.post_categories.build(:category => category)
+        end
       end
     end
   end
