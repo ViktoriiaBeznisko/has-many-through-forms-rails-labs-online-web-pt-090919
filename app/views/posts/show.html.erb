@@ -1,27 +1,34 @@
-<% @post.categories.each do |category| %>
-    <%= category.name %><br>
+
+<h1><%= @post.title %></h1>
+<p><%= @post.content %></p>
+<em>Category</em>
+<ul><% @post.categories.each do |category| %>
+  <li><%= category.name %></li>
+  <% end %>
+</ul>
+<br />
+<br />
+<em>Comments</em>
+<% @post.comments.each do |comment| %>
+  <p><%= comment.user.username %> says: <%= comment.content %></p>
 <% end %>
-
-<% @post.users.distinct.each do |user| %>
-    <%= link_to user.username, user_path(user) %>
-    <%= user.post_comments(@post).each do |comment| %>
-        <p><%= user.username %> says: <%= comment.content %>
-    <% end %>
+<p>Users</p>
+<ul>
+<% @post.users.uniq.each do |user| %>
+  <li><%= link_to user.username, user_path(user) %></li>
 <% end %>
-
-<h3>New Comment:</h3>
-
-<%= form_for @post.comments.build do |f| %>
-    <%= f.hidden_field :post_id %>
-
-    <%= f.collection_select :user_id, User.all, :id, :username %>
-
-    <%= f.fields_for :user, User.new do |user_fields| %>
-        <%= user_fields.label :username %>
-        <%= user_fields.text_field :username %>
-    <% end %>
-
-    <%= f.text_area :content %>
-
-    <%= f.submit %>
+</ul>
+<h3>Add a New Comment</h3>
+<%= form_for(@comment = Comment.new) do |f| %>
+  <%= f.label :content %>
+  <%= f.text_field :content %><br /><br />
+  <%= f.label "Username" %>
+  <%= f.collection_select :user_id, User.all, :id, :username, :include_blank => true %><br /><br />
+  <%= f.label "New User:" %>
+  <%= f.fields_for :user, @comment.build_user do |user| %>
+    <%= user.text_field :username %>
+  <% end %><br />
+  <br />
+  <input type="hidden" name="comment[post_id]" value="<%= @post.id %>">
+  <%= f.submit %>
 <% end %>
