@@ -1,8 +1,7 @@
 class CommentsController < ApplicationController
 
   def create
-    
-        if params[:comment][:user_id].blank?
+    if params[:comment][:user_id].blank?
       params[:comment].delete(:user_id)
     end
     comment = Comment.create(comment_params)
